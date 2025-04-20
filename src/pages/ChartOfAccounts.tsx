@@ -1,5 +1,5 @@
 
-import { ChevronDown, FolderIcon } from "lucide-react";
+import { FolderIcon } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -78,12 +78,26 @@ interface AccountNode {
 
 const AccountItem = ({ account }: { account: AccountNode }) => {
   const hasChildren = account.children && Object.keys(account.children).length > 0;
+  
+  // Determine icon color based on account level and children
+  const getFolderIconColor = () => {
+    // Root accounts (1000, 2000, etc)
+    if (account.code.length === 4 && account.code.endsWith('000')) {
+      return "text-primary"; // Primary blue for root accounts
+    }
+    // Sub-accounts with children
+    if (hasChildren) {
+      return "text-blue-400"; // Lighter blue for parent sub-accounts
+    }
+    // Sub-accounts without children (leaf nodes)
+    return "text-blue-300"; // Softest blue for leaf accounts
+  };
 
   return (
     <AccordionItem value={account.code} className="border-none">
       <AccordionTrigger className="hover:no-underline py-2 px-4">
         <div className="flex items-center gap-4 w-full">
-          <FolderIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+          <FolderIcon className={`h-4 w-4 shrink-0 ${getFolderIconColor()}`} />
           <div className="grid grid-cols-4 w-full gap-4">
             <span className="font-medium">{account.code}</span>
             <span className="font-medium">{account.name}</span>
