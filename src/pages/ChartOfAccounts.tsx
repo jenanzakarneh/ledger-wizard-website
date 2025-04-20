@@ -1,3 +1,4 @@
+
 import { FolderIcon } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
@@ -94,7 +95,10 @@ const AccountItem = ({ account }: { account: AccountNode }) => {
 
   return (
     <AccordionItem value={account.code} className="border-none">
-      <AccordionTrigger className="hover:no-underline py-2 px-4">
+      <AccordionTrigger 
+        className="hover:no-underline py-2 px-4"
+        showChevron={hasChildren}
+      >
         <div className="flex items-center gap-4 w-full">
           <FolderIcon className={`h-4 w-4 shrink-0 ${getFolderIconColor()}`} />
           <div className="grid grid-cols-4 w-full gap-4">
@@ -161,3 +165,4 @@ const ChartOfAccounts = () => {
 };
 
 export default ChartOfAccounts;
+
