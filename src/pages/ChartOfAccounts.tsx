@@ -1,4 +1,3 @@
-
 import { FolderIcon } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
@@ -83,14 +82,14 @@ const AccountItem = ({ account }: { account: AccountNode }) => {
   const getFolderIconColor = () => {
     // Root accounts (1000, 2000, etc)
     if (account.code.length === 4 && account.code.endsWith('000')) {
-      return "text-primary"; // Primary blue for root accounts
+      return "text-[#8B5CF6]"; // Vivid Purple for root accounts
     }
     // Sub-accounts with children
     if (hasChildren) {
-      return "text-blue-400"; // Lighter blue for parent sub-accounts
+      return "text-[#F97316]"; // Bright Orange for parent sub-accounts
     }
     // Sub-accounts without children (leaf nodes)
-    return "text-blue-300"; // Softest blue for leaf accounts
+    return "text-[#0EA5E9]"; // Ocean Blue for leaf accounts
   };
 
   return (
@@ -162,4 +161,3 @@ const ChartOfAccounts = () => {
 };
 
 export default ChartOfAccounts;
-
