@@ -125,20 +125,20 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
       <div className="flex gap-2 mb-2">
         <button
           onClick={handleExpandAll}
-          className="border px-2 py-1 rounded bg-gray-50 text-gray-700 hover:bg-gray-100 transition"
+          className="border px-3 py-1 rounded-md bg-[#2887e0] text-white font-bold shadow hover:bg-[#216db8] transition"
         >
           Expand All
         </button>
         <button
           onClick={handleCollapseAll}
-          className="border px-2 py-1 rounded bg-gray-50 text-gray-700 hover:bg-gray-100 transition"
+          className="border px-3 py-1 rounded-md bg-[#e6eef8] text-[#2887e0] font-bold hover:bg-blue-100 transition"
         >
           Collapse All
         </button>
       </div>
 
-      <div className="border rounded bg-white">
-        <div className="grid grid-cols-12 py-2 border-b bg-gray-50 font-semibold text-sm">
+      <div className="border rounded-xl bg-white shadow overflow-hidden">
+        <div className="grid grid-cols-12 py-2 border-b bg-[#2887e0] text-white font-bold text-sm">
           <div className="col-span-3 pl-3">Code</div>
           <div className="col-span-5">Name</div>
           <div className="col-span-2 text-right pr-4">Balance</div>
@@ -154,21 +154,31 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
             filteredRows.map(({ account, level, path, hasChildren }, idx) => (
               <Fragment key={path}>
                 <div
-                  className={`grid grid-cols-12 items-center text-sm border-b last:border-0 hover:bg-gray-50 transition-colors`}
-                  style={{ background: level === 0 ? "#fafbfc" : undefined }}
+                  className={`grid grid-cols-12 items-center text-sm border-b last:border-0 transition-colors`}
+                  style={{
+                    background:
+                      level === 0
+                        ? "#e6eef8"
+                        : idx % 2 === 0
+                        ? "#f6fafd"
+                        : "#ffffff",
+                  }}
                 >
                   {/* Code (indented with collapse icon/folder) */}
-                  <div className="flex items-center gap-2 col-span-3 pl-3" style={{ paddingLeft: `${level * 16 + 12}px` }}>
+                  <div
+                    className="flex items-center gap-2 col-span-3 pl-3"
+                    style={{ paddingLeft: `${level * 16 + 12}px` }}
+                  >
                     {/* Collapse/expand icon if has children */}
                     {hasChildren ? (
                       <button
                         onClick={() => handleToggle(path)}
                         aria-label={expanded.has(path) ? "Collapse" : "Expand"}
-                        className="p-1 hover-scale rounded hover:bg-gray-200"
+                        className="p-1 mr-1 hover:scale-110 rounded bg-blue-50 hover:bg-blue-200 transition"
                         style={{ lineHeight: 0 }}
                       >
                         {expanded.has(path) ? (
-                          <ChevronDown size={16} className="text-gray-700" />
+                          <ChevronDown size={16} className="text-[#2887e0]" />
                         ) : (
                           <ChevronRightIcon />
                         )}
@@ -177,9 +187,9 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
                     {/* Folder icon if has children, else invisible placeholder for alignment */}
                     {hasChildren ? (
                       expanded.has(path) ? (
-                        <FolderOpen size={16} className="text-gray-600" />
+                        <FolderOpen size={16} className="text-[#2887e0]" />
                       ) : (
-                        <Folder size={16} className="text-gray-400" />
+                        <Folder size={16} className="text-[#2887e0]/60" />
                       )
                     ) : (
                       <span style={{ display: "inline-block", width: 16 }} />
@@ -215,12 +225,13 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
 };
 
 function ChevronRightIcon(props: React.ComponentProps<"svg">) {
-  // This is a non-lucide fallback for right chevron since lucide-react's doesn't have ChevronRight in allowed list
+  // This is a non-lucide fallback for right chevron
   return (
     <svg width={16} height={16} viewBox="0 0 16 16" fill="none" {...props}>
-      <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6 4L10 8L6 12" stroke="#2887e0" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
 
 export default AccountsTable;
+

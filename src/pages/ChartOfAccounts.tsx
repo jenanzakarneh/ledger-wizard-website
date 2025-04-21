@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Download, Filter } from "lucide-react";
 import Header from "@/components/layout/Header";
@@ -189,7 +190,7 @@ const ChartOfAccounts = () => {
   const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#f9fbff]">
       <Header />
       <div className="flex">
         <aside className="w-56 border-r h-full min-h-screen bg-white">
@@ -197,9 +198,15 @@ const ChartOfAccounts = () => {
         </aside>
         <main className="flex-1 p-8">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Chart of Accounts</h1>
+            <h1 className="text-3xl font-bold text-white bg-[#2887e0] px-6 py-3 rounded shadow">
+              Chart of Accounts
+            </h1>
             <div className="flex items-center gap-2">
-              <Button size="sm" onClick={exportAccountsToCSV} variant="outline">
+              <Button
+                size="sm"
+                onClick={exportAccountsToCSV}
+                className="bg-[#2887e0] hover:bg-[#216db8] text-white border-none font-bold"
+              >
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
@@ -209,20 +216,24 @@ const ChartOfAccounts = () => {
             <Input
               type="search"
               placeholder="Search accounts..."
-              className="w-60 bg-gray-50 rounded border border-gray-200"
+              className="w-60 rounded border border-blue-200 bg-white ring-2 ring-blue-100 focus:ring-[#2887e0] focus:border-blue-400"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button
+                  className="bg-[#f4f9ff] text-[#2887e0] border border-blue-200 hover:bg-[#e5f2ff] hover:text-[#1a60ad]"
+                  size="sm"
+                  variant="outline"
+                >
                   <Filter className="mr-2 h-4 w-4" />
                   Options
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-64">
                 <div className="space-y-2">
-                  <h4 className="font-medium">Display Options</h4>
+                  <h4 className="font-semibold text-[#2887e0]">Display Options</h4>
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -238,7 +249,13 @@ const ChartOfAccounts = () => {
               </PopoverContent>
             </Popover>
           </div>
-          <AccountsTable accountsData={accountsData} searchQuery={searchQuery} showDetails={showDetails} />
+          <div className="rounded-xl bg-white shadow border border-blue-100 p-4">
+            <AccountsTable
+              accountsData={accountsData}
+              searchQuery={searchQuery}
+              showDetails={showDetails}
+            />
+          </div>
         </main>
       </div>
     </div>
