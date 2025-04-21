@@ -21,7 +21,7 @@ const accountsData = {
   "1000": {
     code: "1000",
     name: "Assets",
-    type: "Asset",
+    type: "Asset" as const,
     balance: 150000,
     debits: 175000,
     credits: 25000,
@@ -29,7 +29,7 @@ const accountsData = {
       "1100": {
         code: "1100",
         name: "Cash",
-        type: "Asset",
+        type: "Asset" as const,
         balance: 45000,
         debits: 55000,
         credits: 10000,
@@ -37,7 +37,7 @@ const accountsData = {
           "1110": {
             code: "1110",
             name: "Bank Account",
-            type: "Asset",
+            type: "Asset" as const,
             balance: 35000,
             debits: 40000,
             credits: 5000,
@@ -45,7 +45,7 @@ const accountsData = {
           "1120": {
             code: "1120",
             name: "Petty Cash",
-            type: "Asset",
+            type: "Asset" as const,
             balance: 10000,
             debits: 15000,
             credits: 5000,
@@ -55,7 +55,7 @@ const accountsData = {
       "1200": {
         code: "1200",
         name: "Accounts Receivable",
-        type: "Asset",
+        type: "Asset" as const,
         balance: 105000,
         debits: 120000,
         credits: 15000,
@@ -65,7 +65,7 @@ const accountsData = {
   "2000": {
     code: "2000",
     name: "Liabilities",
-    type: "Liability",
+    type: "Liability" as const,
     balance: 65000,
     debits: 15000,
     credits: 80000,
@@ -73,7 +73,7 @@ const accountsData = {
       "2100": {
         code: "2100",
         name: "Accounts Payable",
-        type: "Liability",
+        type: "Liability" as const,
         balance: 45000,
         debits: 10000,
         credits: 55000,
@@ -81,7 +81,7 @@ const accountsData = {
       "2200": {
         code: "2200",
         name: "Notes Payable",
-        type: "Liability",
+        type: "Liability" as const,
         balance: 20000,
         debits: 5000,
         credits: 25000,
@@ -91,7 +91,7 @@ const accountsData = {
   "3000": {
     code: "3000",
     name: "Equity",
-    type: "Equity",
+    type: "Equity" as const,
     balance: 85000,
     debits: 5000,
     credits: 90000,
@@ -99,7 +99,7 @@ const accountsData = {
       "3100": {
         code: "3100",
         name: "Common Stock",
-        type: "Equity",
+        type: "Equity" as const,
         balance: 50000,
         debits: 0,
         credits: 50000,
@@ -107,7 +107,7 @@ const accountsData = {
       "3200": {
         code: "3200",
         name: "Retained Earnings",
-        type: "Equity",
+        type: "Equity" as const,
         balance: 35000,
         debits: 5000,
         credits: 40000,
@@ -117,7 +117,7 @@ const accountsData = {
   "4000": {
     code: "4000",
     name: "Revenue",
-    type: "Revenue",
+    type: "Revenue" as const,
     balance: 120000,
     debits: 0,
     credits: 120000,
@@ -125,7 +125,7 @@ const accountsData = {
       "4100": {
         code: "4100",
         name: "Sales Revenue",
-        type: "Revenue",
+        type: "Revenue" as const,
         balance: 120000,
         debits: 0,
         credits: 120000,
@@ -135,7 +135,7 @@ const accountsData = {
   "5000": {
     code: "5000",
     name: "Expenses",
-    type: "Expense",
+    type: "Expense" as const,
     balance: 65000,
     debits: 65000,
     credits: 0,
@@ -143,7 +143,7 @@ const accountsData = {
       "5100": {
         code: "5100",
         name: "Rent Expense",
-        type: "Expense",
+        type: "Expense" as const,
         balance: 20000,
         debits: 20000,
         credits: 0,
@@ -151,7 +151,7 @@ const accountsData = {
       "5200": {
         code: "5200",
         name: "Utilities Expense",
-        type: "Expense",
+        type: "Expense" as const,
         balance: 15000,
         debits: 15000,
         credits: 0,
@@ -159,7 +159,7 @@ const accountsData = {
       "5300": {
         code: "5300",
         name: "Salaries Expense",
-        type: "Expense",
+        type: "Expense" as const,
         balance: 30000,
         debits: 30000,
         credits: 0,
