@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, Fragment } from "react";
 import { ChevronDown, Folder, FolderOpen } from "lucide-react";
 
@@ -15,7 +14,6 @@ interface AccountNode {
 interface AccountsTableProps {
   accountsData: Record<string, AccountNode>;
   searchQuery: string;
-  showDetails: boolean;
 }
 
 type FlattenedAccount = {
@@ -74,7 +72,6 @@ const getAllExpandablePaths = (accounts: Record<string, AccountNode>, parentCode
 const AccountsTable: React.FC<AccountsTableProps> = ({
   accountsData,
   searchQuery,
-  showDetails,
 }) => {
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(Object.keys(accountsData).map((k) => k))
