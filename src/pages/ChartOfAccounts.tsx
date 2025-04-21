@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Filter, Plus, Upload, Pencil, Folder, FolderOpen } from "lucide-react";
+import { Download, Plus, Upload, Pencil, Folder, FolderOpen } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import AccountsTable from "@/components/accounts/AccountsTable";
@@ -169,34 +169,33 @@ const accountTabs = [
 
 const ChartOfAccounts = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showDetails, setShowDetails] = useState(false);
   const [activeTab, setActiveTab] = useState("Assets");
 
   return (
-    <div className="min-h-screen bg-[#f6f7fa]">
+    <div className="min-h-screen bg-[#F1F0FB]">
       <Header />
       <div className="flex">
         <aside className="w-56 border-r h-full min-h-screen bg-white">
           <Sidebar />
         </aside>
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-0 sm:p-8">
           {/* Page heading */}
-          <div className="mb-3 flex items-center justify-between">
-            <h1 className="text-2xl font-semibold text-[#2C355B] tracking-tight">Chart of Accounts</h1>
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-3xl font-bold text-[#1EAEDB] tracking-tight mb-2 sm:mb-0">Chart of Accounts</h1>
+            <Button className="bg-[#1EAEDB] hover:bg-[#0FA0CE] text-white font-semibold px-5 py-2 rounded-lg shadow-sm" size="sm">
+              <Plus className="mr-2" size={18} />
+              Add Account
+            </Button>
           </div>
           {/* Tabs */}
-          <div className="mb-3">
-            <div className="flex gap-3">
+          <div className="mb-6">
+            <div className="flex gap-3 rounded-lg bg-white p-2 w-fit shadow border border-[#D8E7F7]">
               {accountTabs.map((tab) => (
                 <button
                   key={tab}
-                  className={`px-5 py-2 rounded-full text-sm font-semibold transition
-                    ${activeTab === tab ? "bg-[#2C355B] text-white shadow-sm" : "bg-white text-[#2C355B] border"} 
+                  className={`px-5 py-2 rounded-lg text-[15px] font-semibold transition border-2
+                    ${activeTab === tab ? "bg-[#1EAEDB] text-white border-[#1EAEDB] shadow" : "bg-white text-[#1EAEDB] border-transparent hover:border-[#C8C8C9]"}
                   `}
-                  style={{
-                    borderColor: "#E0E1E9",
-                    borderWidth: activeTab === tab ? 0 : 1,
-                  }}
                   onClick={() => setActiveTab(tab)}
                 >
                   {tab}
@@ -205,59 +204,30 @@ const ChartOfAccounts = () => {
             </div>
           </div>
           {/* Actions Bar */}
-          <div className="flex items-center mb-3">
-            <div className="flex flex-1 items-center gap-2">
-              <Input
-                type="search"
-                placeholder="Search by ..."
-                className="max-w-xs text-[15px] px-3 py-2 h-9 border border-[#D2D7E3] rounded-md bg-white shadow-sm ring-0 focus:ring-2 focus:ring-[#2C355B]/30 focus:border-[#2C355B]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center mb-3 gap-2 sm:gap-0">
+            <Input
+              type="search"
+              placeholder="Search chart of accounts"
+              className="max-w-xs text-[15px] px-3 py-2 h-10 border border-[#C8C8C9] rounded-lg bg-white shadow-sm ring-0 focus:ring-2 focus:ring-[#1EAEDB]/20 focus:border-[#1EAEDB]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
             <div className="flex flex-row gap-2 ml-auto">
-              <Button className="bg-[#2C355B] hover:bg-[#212845] text-white font-semibold px-4 py-2 rounded-md shadow-sm" size="sm">
-                <Plus className="mr-2" size={18} />
-                Add Account
+              <Button variant="outline" className="border-[#D8E7F7] bg-white text-[#1EAEDB] hover:bg-[#E8F6FC] px-4 py-2 rounded-lg font-semibold">
+                <Upload className="mr-2" size={18} />
+                Import
+              </Button>
+              <Button variant="outline" className="border-[#D8E7F7] bg-white text-[#1EAEDB] hover:bg-[#E8F6FC] px-4 py-2 rounded-lg font-semibold">
+                <Download className="mr-2" size={18} />
+                Export
               </Button>
             </div>
           </div>
-          <div className="mb-5 w-full px-2">
-            <div className="flex flex-row flex-wrap items-center gap-2 bg-[#2C355B] w-full px-4 h-11 rounded-t-lg">
-              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
-                <Plus className="mr-2" size={16} /> Create
-              </Button>
-              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
-                <Pencil className="mr-2" size={16} /> Update
-              </Button>
-              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
-                <Plus className="mr-2" size={16} /> Merge
-              </Button>
-              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
-                <Plus className="mr-2" size={16} /> Move
-              </Button>
-              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
-                <Upload className="mr-2" size={16} /> Print
-              </Button>
-              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
-                <Download className="mr-2" size={16} /> Export
-              </Button>
-              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
-                <Upload className="mr-2" size={16} /> Import
-              </Button>
-              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
-                <Plus className="mr-2" size={16} /> Shortcuts
-              </Button>
-              {/* Filler to align right */}
-              <div className="flex-1" />
-            </div>
-          </div>
-          {/* Card */}
-          <div className="rounded-lg bg-white shadow border border-[#E0E1E9] p-0">
+          {/* Card/Table */}
+          <div className="rounded-xl bg-white shadow-xl border border-[#D8E7F7] p-0 mt-2">
             <AccountsTable
               accountsData={accountsData}
               searchQuery={searchQuery}
-              showDetails={showDetails}
             />
           </div>
         </main>
