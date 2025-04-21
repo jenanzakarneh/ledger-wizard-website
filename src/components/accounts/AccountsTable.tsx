@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, Fragment } from "react";
-import { ChevronDown, ChevronUp, Folder, FolderOpen } from "lucide-react";
+import { ChevronDown, Folder, FolderOpen } from "lucide-react";
 
 interface AccountNode {
   code: string;
@@ -22,7 +22,7 @@ type FlattenedAccount = {
   account: AccountNode;
   level: number;
   parentCodes: string[];
-  path: string; // concatenated string of codes (for unique keys)
+  path: string;
   hasChildren: boolean;
 };
 
@@ -77,16 +77,14 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
   showDetails,
 }) => {
   const [expanded, setExpanded] = useState<Set<string>>(
-    () => new Set(Object.keys(accountsData).map((k) => k)) // root nodes expanded by default
+    () => new Set(Object.keys(accountsData).map((k) => k))
   );
 
-  // All expandable paths
   const allExpandablePaths = useMemo(
     () => getAllExpandablePaths(accountsData),
     [accountsData]
   );
 
-  // Toggle logic for expanding/collapsing one node
   const handleToggle = (path: string) => {
     setExpanded((prev) => {
       const copy = new Set(prev);
@@ -99,17 +97,14 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
     });
   };
 
-  // Collapse/expand all
   const handleCollapseAll = () => setExpanded(new Set());
   const handleExpandAll = () => setExpanded(new Set(allExpandablePaths));
 
-  // Flatten according to expanded/collapsed state
   const rows = useMemo(
     () => flattenAccountsTree(accountsData, expanded),
     [accountsData, expanded]
   );
 
-  // Search logic - show row if code or name matches
   const filteredRows = useMemo(() => {
     if (!searchQuery) return rows;
     const s = searchQuery.toLowerCase();
@@ -121,97 +116,71 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
 
   return (
     <div>
-      {/* Controls */}
-      <div className="flex gap-2 mb-2">
-        <button
-          onClick={handleExpandAll}
-          className="border px-3 py-1 rounded-md bg-[#2887e0] text-white font-bold shadow hover:bg-[#216db8] transition"
-        >
-          Expand All
-        </button>
-        <button
-          onClick={handleCollapseAll}
-          className="border px-3 py-1 rounded-md bg-[#e6eef8] text-[#2887e0] font-bold hover:bg-blue-100 transition"
-        >
-          Collapse All
-        </button>
-      </div>
-
-      <div className="border rounded-xl bg-white shadow overflow-hidden">
-        <div className="grid grid-cols-12 py-2 border-b bg-[#2887e0] text-white font-bold text-sm">
-          <div className="col-span-3 pl-3">Code</div>
-          <div className="col-span-5">Name</div>
-          <div className="col-span-2 text-right pr-4">Balance</div>
-          {showDetails && (
-            <>
-              <div className="col-span-1 text-right pr-2">Debits</div>
-              <div className="col-span-1 text-right pr-3">Credits</div>
-            </>
-          )}
+      {/* Table */}
+      <div className="overflow-x-auto rounded-b-lg">
+        {/* Table header matching reference */}
+        <div className="grid grid-cols-12 py-2 px-3 bg-[#2C355B] text-white font-bold text-sm rounded-t-lg border-b border-[#E0E1E9]">
+          <div className="col-span-3 pl-2">Account path</div>
+          <div className="col-span-3">Account name</div>
+          <div className="col-span-2">English name</div>
+          <div className="col-span-2 text-right">Total debit</div>
+          <div className="col-span-1 text-right">Credit total</div>
+          <div className="col-span-1 text-right">Balance</div>
         </div>
         <div>
           {filteredRows.length > 0 ? (
             filteredRows.map(({ account, level, path, hasChildren }, idx) => (
               <Fragment key={path}>
                 <div
-                  className={`grid grid-cols-12 items-center text-sm border-b last:border-0 transition-colors`}
+                  className={`
+                    grid grid-cols-12 items-center text-[15px] border-b border-[#F3F3F6] last:border-0
+                    ${idx % 2 === 0 ? "bg-white" : "bg-[#F8F9FB]"}
+                  `}
                   style={{
-                    background:
-                      level === 0
-                        ? "#e6eef8"
-                        : idx % 2 === 0
-                        ? "#f6fafd"
-                        : "#ffffff",
+                    minHeight: "44px",
                   }}
                 >
-                  {/* Code (indented with collapse icon/folder) */}
+                  {/* Path with indentation and collapse/expand */}
                   <div
-                    className="flex items-center gap-2 col-span-3 pl-3"
-                    style={{ paddingLeft: `${level * 16 + 12}px` }}
+                    className="flex items-center gap-2 col-span-3"
+                    style={{ paddingLeft: `${level * 22 + 10}px` }}
                   >
-                    {/* Collapse/expand icon if has children */}
+                    {/* Collapse/expand icon */}
                     {hasChildren ? (
                       <button
                         onClick={() => handleToggle(path)}
                         aria-label={expanded.has(path) ? "Collapse" : "Expand"}
-                        className="p-1 mr-1 hover:scale-110 rounded bg-blue-50 hover:bg-blue-200 transition"
+                        className="p-1 mr-1 hover:scale-110 rounded bg-[#F0F1FA] hover:bg-[#E9EFFF] transition"
                         style={{ lineHeight: 0 }}
                       >
                         {expanded.has(path) ? (
-                          <ChevronDown size={16} className="text-[#2887e0]" />
+                          <ChevronDown size={17} className="text-[#4061D6]" />
                         ) : (
                           <ChevronRightIcon />
                         )}
                       </button>
-                    ) : null}
-                    {/* Folder icon if has children, else invisible placeholder for alignment */}
+                    ) : (
+                      <span className="w-6" />
+                    )}
+                    {/* Blue/yellow folder icon */}
                     {hasChildren ? (
                       expanded.has(path) ? (
-                        <FolderOpen size={16} className="text-[#2887e0]" />
+                        <FolderOpen size={19} strokeWidth={2} className="text-[#2486E9]" />
                       ) : (
-                        <Folder size={16} className="text-[#2887e0]/60" />
+                        <Folder size={19} strokeWidth={2} className="text-[#2486E9]/80" />
                       )
                     ) : (
-                      <span style={{ display: "inline-block", width: 16 }} />
+                      <span style={{ display: "inline-block", width: 19 }} />
                     )}
-                    <span className="font-mono">{account.code}</span>
+                    <span className="ml-1 font-mono text-[#222]">{account.code}</span>
                   </div>
-                  {/* Name */}
-                  <div className="col-span-5 truncate">{account.name}</div>
-                  {/* Balance */}
-                  <div className="col-span-2 pr-4 text-right font-mono text-gray-900">
-                    ${account.balance.toLocaleString()}
-                  </div>
-                  {showDetails && (
-                    <>
-                      <div className="col-span-1 pr-2 text-right text-green-700 font-mono">
-                        ${account.debits?.toLocaleString() ?? "0"}
-                      </div>
-                      <div className="col-span-1 pr-3 text-right text-red-700 font-mono">
-                        ${account.credits?.toLocaleString() ?? "0"}
-                      </div>
-                    </>
-                  )}
+                  {/* Account name, bold for visual */}
+                  <div className="col-span-3 font-semibold">{account.name}</div>
+                  {/* English name - placeholder for demo */}
+                  <div className="col-span-2 text-gray-600">Data</div>
+                  <div className="col-span-2 text-right font-mono text-[#222]">{account.debits?.toLocaleString() ?? "0"}</div>
+                  <div className="col-span-1 text-right font-mono text-[#222]">{account.credits?.toLocaleString() ?? "0"}</div>
+                  <div className="col-span-1 text-right font-mono text-[#222]">{account.balance.toLocaleString()}</div>
                 </div>
               </Fragment>
             ))
@@ -219,19 +188,37 @@ const AccountsTable: React.FC<AccountsTableProps> = ({
             <div className="py-8 text-center text-gray-500">No accounts found.</div>
           )}
         </div>
+        {/* Pagination & totals, for reference: no real pagination logic */}
+        <div className="flex justify-between items-center bg-[#F7F7FA] px-4 py-2 text-[13px] text-[#7A7B85] rounded-b-lg border-t border-[#E0E1E9]">
+          <div>
+            Showing 1 to {filteredRows.length} of 100 entries
+          </div>
+          <div className="flex gap-7 text-[#222] font-semibold">
+            <span>2,037,131</span>
+            <span>2,037,131</span>
+            <span>JD2,037,131</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button className="px-2 py-1 h-8 rounded bg-white border text-[#2C355B] border-[#C5C8D1] mr-1">Previous</button>
+            <button className="px-2 py-1 h-8 rounded bg-[#2C355B] text-white border border-[#2C355B]">1</button>
+            <button className="px-2 py-1 h-8 rounded bg-white border text-[#2C355B] border-[#C5C8D1]">2</button>
+            <button className="px-2 py-1 h-8 rounded bg-white border text-[#2C355B] border-[#C5C8D1]">3</button>
+            <button className="px-2 py-1 h-8 rounded bg-white border text-[#2C355B] border-[#C5C8D1]">4</button>
+            <button className="px-2 py-1 h-8 rounded bg-white border text-[#2C355B] border-[#C5C8D1] ml-1">Next</button>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
 function ChevronRightIcon(props: React.ComponentProps<"svg">) {
-  // This is a non-lucide fallback for right chevron
+  // Chevron right, styled blue
   return (
-    <svg width={16} height={16} viewBox="0 0 16 16" fill="none" {...props}>
-      <path d="M6 4L10 8L6 12" stroke="#2887e0" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+    <svg width={17} height={17} viewBox="0 0 16 16" fill="none" {...props}>
+      <path d="M6 4L10 8L6 12" stroke="#4061D6" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
 
 export default AccountsTable;
-

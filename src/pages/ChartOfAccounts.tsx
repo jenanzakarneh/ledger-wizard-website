@@ -1,12 +1,10 @@
-
 import { useState } from "react";
-import { Download, Filter } from "lucide-react";
+import { Download, Filter, Plus, Upload, Pencil, Folder, FolderOpen } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import AccountsTable from "@/components/accounts/AccountsTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 const accountsData = {
   "1000": {
@@ -159,97 +157,103 @@ const accountsData = {
   },
 };
 
-const exportAccountsToCSV = () => {
-  function flatten(accounts: Record<string, any>, result: any[] = [], level = 0) {
-    Object.values(accounts).forEach((account: any) => {
-      result.push({ ...account, level });
-      if (account.children) {
-        flatten(account.children, result, level + 1);
-      }
-    });
-    return result;
-  }
-  const flatAccounts = flatten(accountsData);
-  let csvContent = "Code,Name,Balance,Debits,Credits,Level\n";
-  flatAccounts.forEach((account: any) => {
-    const indentation = "  ".repeat(account.level);
-    csvContent += `${account.code},"${indentation}${account.name}",${account.balance},${account.debits || 0},${account.credits || 0},${account.level}\n`;
-  });
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', 'chart_of_accounts.csv');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+const accountTabs = [
+  "All",
+  "Assets",
+  "Liabilities",
+  "Capital & equity",
+  "Income",
+  "Trade Expenses",
+  "Expenses",
+];
 
 const ChartOfAccounts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+  const [activeTab, setActiveTab] = useState("Assets");
 
   return (
-    <div className="min-h-screen bg-[#f9fbff]">
+    <div className="min-h-screen bg-[#f6f7fa]">
       <Header />
       <div className="flex">
         <aside className="w-56 border-r h-full min-h-screen bg-white">
           <Sidebar />
         </aside>
         <main className="flex-1 p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold text-white bg-[#2887e0] px-6 py-3 rounded shadow">
-              Chart of Accounts
-            </h1>
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                onClick={exportAccountsToCSV}
-                className="bg-[#2887e0] hover:bg-[#216db8] text-white border-none font-bold"
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Export
+          {/* Page heading */}
+          <div className="mb-3 flex items-center justify-between">
+            <h1 className="text-2xl font-semibold text-[#2C355B] tracking-tight">Chart of Accounts</h1>
+          </div>
+          {/* Tabs */}
+          <div className="mb-3">
+            <div className="flex gap-3">
+              {accountTabs.map((tab) => (
+                <button
+                  key={tab}
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition
+                    ${activeTab === tab ? "bg-[#2C355B] text-white shadow-sm" : "bg-white text-[#2C355B] border"} 
+                  `}
+                  style={{
+                    borderColor: "#E0E1E9",
+                    borderWidth: activeTab === tab ? 0 : 1,
+                  }}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Actions Bar */}
+          <div className="flex items-center mb-3">
+            <div className="flex flex-1 items-center gap-2">
+              <Input
+                type="search"
+                placeholder="Search by ..."
+                className="max-w-xs text-[15px] px-3 py-2 h-9 border border-[#D2D7E3] rounded-md bg-white shadow-sm ring-0 focus:ring-2 focus:ring-[#2C355B]/30 focus:border-[#2C355B]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-row gap-2 ml-auto">
+              <Button className="bg-[#2C355B] hover:bg-[#212845] text-white font-semibold px-4 py-2 rounded-md shadow-sm" size="sm">
+                <Plus className="mr-2" size={18} />
+                Add Account
               </Button>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-4 mb-4">
-            <Input
-              type="search"
-              placeholder="Search accounts..."
-              className="w-60 rounded border border-blue-200 bg-white ring-2 ring-blue-100 focus:ring-[#2887e0] focus:border-blue-400"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  className="bg-[#f4f9ff] text-[#2887e0] border border-blue-200 hover:bg-[#e5f2ff] hover:text-[#1a60ad]"
-                  size="sm"
-                  variant="outline"
-                >
-                  <Filter className="mr-2 h-4 w-4" />
-                  Options
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64">
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-[#2887e0]">Display Options</h4>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="show-details"
-                      checked={showDetails}
-                      onChange={() => setShowDetails((v) => !v)}
-                    />
-                    <label htmlFor="show-details" className="text-sm">
-                      Show debits and credits
-                    </label>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+          <div className="mb-5 w-full px-2">
+            <div className="flex flex-row flex-wrap items-center gap-2 bg-[#2C355B] w-full px-4 h-11 rounded-t-lg">
+              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
+                <Plus className="mr-2" size={16} /> Create
+              </Button>
+              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
+                <Pencil className="mr-2" size={16} /> Update
+              </Button>
+              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
+                <Plus className="mr-2" size={16} /> Merge
+              </Button>
+              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
+                <Plus className="mr-2" size={16} /> Move
+              </Button>
+              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
+                <Upload className="mr-2" size={16} /> Print
+              </Button>
+              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
+                <Download className="mr-2" size={16} /> Export
+              </Button>
+              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
+                <Upload className="mr-2" size={16} /> Import
+              </Button>
+              <Button size="sm" variant="ghost" className="text-white font-semibold hover:bg-[#3F4866]/40 px-3 py-1">
+                <Plus className="mr-2" size={16} /> Shortcuts
+              </Button>
+              {/* Filler to align right */}
+              <div className="flex-1" />
+            </div>
           </div>
-          <div className="rounded-xl bg-white shadow border border-blue-100 p-4">
+          {/* Card */}
+          <div className="rounded-lg bg-white shadow border border-[#E0E1E9] p-0">
             <AccountsTable
               accountsData={accountsData}
               searchQuery={searchQuery}
