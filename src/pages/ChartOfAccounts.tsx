@@ -171,14 +171,36 @@ const accountsData = {
 interface AccountNode {
   code: string;
   name: string;
-  type: string;
+  type: "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
   balance: number;
   debits?: number;
   credits?: number;
   children?: Record<string, AccountNode>;
 }
 
-const getAccountTypeBadgeVariant = (type: string): string => {
+// Helper for aggregating totals
+const getAggregatedTotals = (account: AccountNode): { debits: number, credits: number, balance: number } => {
+  if (!account.children) {
+    return {
+      debits: account.debits ?? 0,
+      credits: account.credits ?? 0,
+      balance: account.balance ?? 0,
+    };
+  }
+  // Sum up the totals for all children
+  let debits = 0;
+  let credits = 0;
+  let balance = 0;
+  Object.values(account.children).forEach(child => {
+    const agg = getAggregatedTotals(child);
+    debits += agg.debits;
+    credits += agg.credits;
+    balance += agg.balance;
+  });
+  return { debits, credits, balance };
+};
+
+const getAccountTypeBadgeVariant = (type: AccountNode["type"]): "default" | "destructive" | "secondary" | "outline" => {
   switch (type) {
     case "Asset":
       return "default";
@@ -187,9 +209,8 @@ const getAccountTypeBadgeVariant = (type: string): string => {
     case "Equity":
       return "secondary";
     case "Revenue":
-      return "outline"; 
     case "Expense":
-      return "outline"; 
+      return "outline";
     default:
       return "default";
   }
@@ -205,7 +226,7 @@ const AccountItem = ({
   showDetails: boolean;
 }) => {
   const hasChildren = account.children && Object.keys(account.children).length > 0;
-  
+
   // Hide accounts that don't match the search query (unless their children match)
   if (
     searchQuery && 
@@ -221,12 +242,18 @@ const AccountItem = ({
           child.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    
     if (!childrenMatch) {
       return null;
     }
   }
   
+  // Get aggregate totals (always show, even for collapsed parent)
+  const { debits, credits, balance } = hasChildren ? getAggregatedTotals(account) : {
+    debits: account.debits ?? 0,
+    credits: account.credits ?? 0,
+    balance: account.balance ?? 0,
+  };
+
   // Determine icon color based on account level and children
   const getFolderIconColor = () => {
     // Root accounts (1000, 2000, etc)
@@ -248,7 +275,11 @@ const AccountItem = ({
         showChevron={hasChildren}
       >
         <div className="flex items-center gap-4 w-full">
-          <FolderIcon className={`h-4 w-4 shrink-0 ${getFolderIconColor()}`} />
+          <span>
+            <svg className={`h-4 w-4 shrink-0 ${getFolderIconColor()}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path d="M3 7a2 2 0 0 1 2-2h2.34a2 2 0 0 0 1.34-.47l1.64-1.53a2 2 0 0 1 1.34-.47H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
+            </svg>
+          </span>
           <div className={`grid ${showDetails ? 'grid-cols-6' : 'grid-cols-4'} w-full gap-4`}>
             <span className="font-medium">{account.code}</span>
             <span className="font-medium">{account.name}</span>
@@ -257,11 +288,11 @@ const AccountItem = ({
                 {account.type}
               </Badge>
             </span>
-            <span className="text-right">${account.balance.toLocaleString()}</span>
+            <span className="text-right">${balance.toLocaleString()}</span>
             {showDetails && (
               <>
-                <span className="text-right">${account.debits?.toLocaleString() || '0'}</span>
-                <span className="text-right">${account.credits?.toLocaleString() || '0'}</span>
+                <span className="text-right">${debits.toLocaleString()}</span>
+                <span className="text-right">${credits.toLocaleString()}</span>
               </>
             )}
           </div>
