@@ -15,7 +15,6 @@ import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// Hierarchical account data structure with debits/credits
 const accountsData = {
   "1000": {
     code: "1000",
@@ -177,7 +176,6 @@ interface AccountNode {
   children?: Record<string, AccountNode>;
 }
 
-// Helper for aggregating totals
 const getAggregatedTotals = (account: AccountNode): { debits: number, credits: number, balance: number } => {
   if (!account.children) {
     return {
@@ -186,7 +184,6 @@ const getAggregatedTotals = (account: AccountNode): { debits: number, credits: n
       balance: account.balance ?? 0,
     };
   }
-  // Sum up the totals for all children
   let debits = 0;
   let credits = 0;
   let balance = 0;
@@ -252,46 +249,43 @@ const AccountItem = ({
         balance: account.balance ?? 0,
       };
 
-  // Design: a subtle shadow, light glass effect, prominent row separator
-  // Remove the account type badge, just show code, name, balance, debits, credits
-
   return (
     <>
-      <AccordionItem value={account.code} className="border-none bg-gradient-to-r from-[#f8fafc] to-[#e0e7ff] rounded-lg shadow-sm mb-2">
-        <AccordionTrigger className="hover:no-underline py-2 px-4 rounded-lg" showChevron={hasChildren}>
-          <div className="flex items-center gap-4 w-full">
+      <AccordionItem value={account.code} className="border-none bg-gradient-to-r from-[#f0f4ff] to-[#dbe5ff] rounded-xl shadow-md mb-3">
+        <AccordionTrigger className="hover:no-underline py-3 px-6 rounded-xl" showChevron={hasChildren}>
+          <div className="flex items-center gap-5 w-full">
             <span>
               <svg
-                className={`h-4 w-4 shrink-0 ${
+                className={`h-5 w-5 shrink-0 ${
                   account.code.length === 4 && account.code.endsWith("000")
-                    ? "text-[#8B5CF6]"
+                    ? "text-purple-600"
                     : hasChildren
-                    ? "text-[#F97316]"
-                    : "text-[#0EA5E9]"
+                    ? "text-orange-500"
+                    : "text-sky-500"
                 }`}
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
                 viewBox="0 0 24 24"
               >
-                <path d="M3 7a2 2 0 0 1 2-2h2.34a2 2 0 0 0 1.34-.47l1.64-1.53a2 2 0 0 1 1.34-.47H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
+                <path d="M3 7a2 2 0 0 1 2-2h2.34a2 2 0 0 0 1.34-.47l1.64-1.53a2 2 0 0 1 1.34-.47H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
               </svg>
             </span>
-            <div className={`grid ${showDetails ? "grid-cols-5" : "grid-cols-3"} w-full gap-4 items-center`}>
-              <span className="font-bold tracking-wider text-gray-700 bg-white/40 px-2 py-1 rounded">{account.code}</span>
-              <span className="font-semibold text-gray-800">{account.name}</span>
-              <span className="text-right font-mono text-lg text-[#8B5CF6]">${balance.toLocaleString()}</span>
+            <div className={`grid ${showDetails ? "grid-cols-5" : "grid-cols-3"} w-full items-center`}>
+              <span className="font-bold tracking-wider text-gray-700 bg-white/60 px-3 py-1 rounded-l-lg border-r border-gray-300">{account.code}</span>
+              <span className="font-semibold text-gray-800 px-3 py-1 border-r border-gray-300">{account.name}</span>
+              <span className="text-right font-mono text-lg text-purple-700 px-3 py-1">{`$${balance.toLocaleString()}`}</span>
               {showDetails && (
                 <>
-                  <span className="text-right font-mono text-green-600">${debits.toLocaleString()}</span>
-                  <span className="text-right font-mono text-red-500">${credits.toLocaleString()}</span>
+                  <span className="text-right font-mono text-green-600 px-3 py-1 border-l border-gray-300">{`$${debits.toLocaleString()}`}</span>
+                  <span className="text-right font-mono text-red-600 px-3 py-1 border-l border-gray-300 rounded-r-lg">{`$${credits.toLocaleString()}`}</span>
                 </>
               )}
             </div>
           </div>
         </AccordionTrigger>
         {hasChildren && (
-          <AccordionContent className="pl-8">
+          <AccordionContent className="pl-10">
             <Accordion type="multiple" className="w-full">
               {Object.values(account.children).map((childAccount) => (
                 <AccountItem
@@ -305,14 +299,12 @@ const AccountItem = ({
           </AccordionContent>
         )}
       </AccordionItem>
-      {/* Separator for y-axis clarity */}
-      <Separator className="my-2" />
+      <Separator className="my-0 border-t border-gray-300" />
     </>
   );
 };
 
 const exportAccountsToCSV = () => {
-  // Function to flatten hierarchical data
   const flattenAccounts = (
     accounts: Record<string, AccountNode>,
     result: AccountNode[] = [],
@@ -330,7 +322,6 @@ const exportAccountsToCSV = () => {
     return result;
   };
   
-  // Generate CSV content
   const flatAccounts = flattenAccounts(accountsData);
   let csvContent = "Code,Name,Type,Balance,Debits,Credits,Level\n";
   
@@ -340,7 +331,6 @@ const exportAccountsToCSV = () => {
     csvContent += `${account.code},"${indentation}${account.name}",${account.type},${account.balance},${account.debits || 0},${account.credits || 0},${level}\n`;
   });
   
-  // Create and download file
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -385,7 +375,9 @@ const ChartOfAccounts = () => {
         </aside>
         <main className="flex-1 p-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-4xl font-extrabold bg-gradient-to-r from-[#8B5CF6] to-[#F97316] bg-clip-text text-transparent drop-shadow">Chart of Accounts</h1>
+            <h1 className="text-4xl font-extrabold bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
+              Chart of Accounts
+            </h1>
             <div className="flex items-center gap-2">
               <Button size="sm" className="font-bold" onClick={expandAll}>
                 Expand All
@@ -406,7 +398,7 @@ const ChartOfAccounts = () => {
               <Input
                 type="search"
                 placeholder="Search accounts..."
-                className="pl-8 rounded-xl bg-white/80 shadow"
+                className="pl-8 rounded-xl bg-white/80 shadow-md"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -442,29 +434,29 @@ const ChartOfAccounts = () => {
             </Popover>
           </div>
 
-          <Card className="mb-6 bg-white/80 border-none shadow-lg">
+          <Card className="mb-6 bg-white/80 border-none shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl font-bold text-[#221F26]">
-                <FolderIcon className="h-6 w-6 text-[#8B5CF6]" />
+                <FolderIcon className="h-6 w-6 text-purple-600" />
                 Account Hierarchy
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="rounded-xl shadow-inner border border-[#e5e7eb] bg-gradient-to-tl from-[#f8fafc] to-[#e0e7ff]">
+              <div className="rounded-xl shadow-inner border border-gray-300 bg-gradient-to-tl from-[#f0f4ff] to-[#dbe5ff]">
                 <div
                   className={
                     "grid " +
                     (showDetails ? "grid-cols-5" : "grid-cols-3") +
-                    " gap-4 py-3 px-6 border-b border-[#e0e7ef] bg-white/70 rounded-t-xl"
+                    " gap-4 py-3 px-6 border-b border-gray-300 bg-white/70 rounded-t-xl"
                   }
                 >
-                  <span className="font-semibold tracking-wider text-gray-800 text-lg">Code</span>
-                  <span className="font-semibold tracking-wider text-gray-800 text-lg">Name</span>
-                  <span className="text-right font-semibold tracking-wider text-gray-800 text-lg">Balance</span>
+                  <span className="font-semibold tracking-wider text-gray-900 text-lg border-r border-gray-300 px-3 rounded-l-lg">Code</span>
+                  <span className="font-semibold tracking-wider text-gray-900 text-lg border-r border-gray-300 px-3">Name</span>
+                  <span className="text-right font-semibold tracking-wider text-gray-900 text-lg px-3">Balance</span>
                   {showDetails && (
                     <>
-                      <span className="text-right font-semibold tracking-wider text-green-700 text-lg">Debits</span>
-                      <span className="text-right font-semibold tracking-wider text-red-700 text-lg">Credits</span>
+                      <span className="text-right font-semibold tracking-wider text-green-700 text-lg border-l border-gray-300 px-3">Debits</span>
+                      <span className="text-right font-semibold tracking-wider text-red-700 text-lg border-l border-gray-300 px-3 rounded-r-lg">Credits</span>
                     </>
                   )}
                 </div>
@@ -493,15 +485,15 @@ const ChartOfAccounts = () => {
             <h3 className="font-semibold mb-2">Legend</h3>
             <div className="flex flex-wrap gap-x-6 gap-y-2">
               <div className="flex items-center">
-                <FolderIcon className="h-4 w-4 mr-2 text-[#8B5CF6]" />
+                <FolderIcon className="h-4 w-4 mr-2 text-purple-600" />
                 <span>Root Accounts</span>
               </div>
               <div className="flex items-center">
-                <FolderIcon className="h-4 w-4 mr-2 text-[#F97316]" />
+                <FolderIcon className="h-4 w-4 mr-2 text-orange-500" />
                 <span>Parent Sub-Accounts</span>
               </div>
               <div className="flex items-center">
-                <FolderIcon className="h-4 w-4 mr-2 text-[#0EA5E9]" />
+                <FolderIcon className="h-4 w-4 mr-2 text-sky-500" />
                 <span>Leaf Accounts</span>
               </div>
             </div>
