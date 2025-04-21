@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Download, Plus, Upload, Pencil, Folder, FolderOpen } from "lucide-react";
+
+import { useState, useMemo } from "react";
+import { Download, Plus, Upload } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import AccountsTable from "@/components/accounts/AccountsTable";
@@ -158,18 +159,47 @@ const accountsData = {
 };
 
 const accountTabs = [
-  "All",
-  "Assets",
-  "Liabilities",
-  "Capital & equity",
-  "Income",
-  "Trade Expenses",
-  "Expenses",
+  { label: "All", filter: null },
+  { label: "Assets", filter: "Asset" },
+  { label: "Liabilities", filter: "Liability" },
+  { label: "Capital & equity", filter: "Equity" },
+  { label: "Income", filter: "Revenue" },
+  { label: "Trade Expenses", filter: "Expense" }, // Optional: adjust mapping if 'Trade Expenses' should filter differently
+  { label: "Expenses", filter: "Expense" },
 ];
+
+// Helper function to deeply filter accounts by type
+function filterAccountsByType(accounts, type) {
+  if (!type) return accounts;
+  const filtered = {};
+  Object.entries(accounts).forEach(([key, value]) => {
+    // Recursively filter children
+    let children = value.children
+      ? filterAccountsByType(value.children, type)
+      : undefined;
+    // Include the account if its type matches or any of its children match
+    if (value.type === type || (children && Object.keys(children).length > 0)) {
+      filtered[key] = {
+        ...value,
+        children,
+      };
+    }
+  });
+  return filtered;
+}
 
 const ChartOfAccounts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("Assets");
+
+  // Determine current filter/type based on active tab
+  const currentType =
+    accountTabs.find((t) => t.label === activeTab)?.filter || null;
+
+  // Filtered accounts data for the selected tab/filter
+  const filteredAccountsData = useMemo(() => {
+    return currentType ? filterAccountsByType(accountsData, currentType) : accountsData;
+  }, [currentType]);
 
   return (
     <div className="min-h-screen bg-[#F1F0FB]">
@@ -187,18 +217,23 @@ const ChartOfAccounts = () => {
               Add Account
             </Button>
           </div>
-          {/* Tabs */}
+          {/* Filter Tabs */}
           <div className="mb-6">
-            <div className="flex gap-3 rounded-lg bg-white p-2 w-fit shadow border border-[#D8E7F7]">
+            <div className="flex gap-2 sm:gap-3 py-2 px-2 rounded-lg bg-white shadow border border-[#D8E7F7] w-fit">
               {accountTabs.map((tab) => (
                 <button
-                  key={tab}
-                  className={`px-5 py-2 rounded-lg text-[15px] font-semibold transition border-2
-                    ${activeTab === tab ? "bg-[#1EAEDB] text-white border-[#1EAEDB] shadow" : "bg-white text-[#1EAEDB] border-transparent hover:border-[#C8C8C9]"}
+                  key={tab.label}
+                  className={`px-5 py-2 min-w-[100px] rounded-lg text-[15px] font-semibold transition-all border
+                    ${
+                      activeTab === tab.label
+                        ? "bg-[#1EAEDB] text-white border-[#1EAEDB] shadow scale-105"
+                        : "bg-[#F7F9FB] text-[#1EAEDB] border-transparent hover:text-[#1585BC] hover:bg-[#ECF6FB]"
+                    }
                   `}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => setActiveTab(tab.label)}
+                  type="button"
                 >
-                  {tab}
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -226,7 +261,7 @@ const ChartOfAccounts = () => {
           {/* Card/Table */}
           <div className="rounded-xl bg-white shadow-xl border border-[#D8E7F7] p-0 mt-2">
             <AccountsTable
-              accountsData={accountsData}
+              accountsData={filteredAccountsData}
               searchQuery={searchQuery}
             />
           </div>
@@ -237,3 +272,5 @@ const ChartOfAccounts = () => {
 };
 
 export default ChartOfAccounts;
+
+// NOTE: This file is getting long (over 240 lines). Consider refactoring into smaller, focused components soon!
