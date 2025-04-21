@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Download, Plus, Upload } from "lucide-react";
 import Header from "@/components/layout/Header";
@@ -7,11 +6,22 @@ import AccountsTable from "@/components/accounts/AccountsTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const accountsData = {
+type AccountType = "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
+interface AccountNode {
+  code: string;
+  name: string;
+  type: AccountType;
+  balance: number;
+  debits?: number;
+  credits?: number;
+  children?: Record<string, AccountNode>;
+}
+
+const accountsData: Record<string, AccountNode> = {
   "1000": {
     code: "1000",
     name: "Assets",
-    type: "Asset" as const,
+    type: "Asset",
     balance: 150000,
     debits: 175000,
     credits: 25000,
@@ -19,7 +29,7 @@ const accountsData = {
       "1100": {
         code: "1100",
         name: "Cash",
-        type: "Asset" as const,
+        type: "Asset",
         balance: 45000,
         debits: 55000,
         credits: 10000,
@@ -27,7 +37,7 @@ const accountsData = {
           "1110": {
             code: "1110",
             name: "Bank Account",
-            type: "Asset" as const,
+            type: "Asset",
             balance: 35000,
             debits: 40000,
             credits: 5000,
@@ -35,7 +45,7 @@ const accountsData = {
           "1120": {
             code: "1120",
             name: "Petty Cash",
-            type: "Asset" as const,
+            type: "Asset",
             balance: 10000,
             debits: 15000,
             credits: 5000,
@@ -45,7 +55,7 @@ const accountsData = {
       "1200": {
         code: "1200",
         name: "Accounts Receivable",
-        type: "Asset" as const,
+        type: "Asset",
         balance: 105000,
         debits: 120000,
         credits: 15000,
@@ -55,7 +65,7 @@ const accountsData = {
   "2000": {
     code: "2000",
     name: "Liabilities",
-    type: "Liability" as const,
+    type: "Liability",
     balance: 65000,
     debits: 15000,
     credits: 80000,
@@ -63,7 +73,7 @@ const accountsData = {
       "2100": {
         code: "2100",
         name: "Accounts Payable",
-        type: "Liability" as const,
+        type: "Liability",
         balance: 45000,
         debits: 10000,
         credits: 55000,
@@ -71,7 +81,7 @@ const accountsData = {
       "2200": {
         code: "2200",
         name: "Notes Payable",
-        type: "Liability" as const,
+        type: "Liability",
         balance: 20000,
         debits: 5000,
         credits: 25000,
@@ -81,7 +91,7 @@ const accountsData = {
   "3000": {
     code: "3000",
     name: "Equity",
-    type: "Equity" as const,
+    type: "Equity",
     balance: 85000,
     debits: 5000,
     credits: 90000,
@@ -89,7 +99,7 @@ const accountsData = {
       "3100": {
         code: "3100",
         name: "Common Stock",
-        type: "Equity" as const,
+        type: "Equity",
         balance: 50000,
         debits: 0,
         credits: 50000,
@@ -97,7 +107,7 @@ const accountsData = {
       "3200": {
         code: "3200",
         name: "Retained Earnings",
-        type: "Equity" as const,
+        type: "Equity",
         balance: 35000,
         debits: 5000,
         credits: 40000,
@@ -107,7 +117,7 @@ const accountsData = {
   "4000": {
     code: "4000",
     name: "Revenue",
-    type: "Revenue" as const,
+    type: "Revenue",
     balance: 120000,
     debits: 0,
     credits: 120000,
@@ -115,7 +125,7 @@ const accountsData = {
       "4100": {
         code: "4100",
         name: "Sales Revenue",
-        type: "Revenue" as const,
+        type: "Revenue",
         balance: 120000,
         debits: 0,
         credits: 120000,
@@ -125,7 +135,7 @@ const accountsData = {
   "5000": {
     code: "5000",
     name: "Expenses",
-    type: "Expense" as const,
+    type: "Expense",
     balance: 65000,
     debits: 65000,
     credits: 0,
@@ -133,7 +143,7 @@ const accountsData = {
       "5100": {
         code: "5100",
         name: "Rent Expense",
-        type: "Expense" as const,
+        type: "Expense",
         balance: 20000,
         debits: 20000,
         credits: 0,
@@ -141,7 +151,7 @@ const accountsData = {
       "5200": {
         code: "5200",
         name: "Utilities Expense",
-        type: "Expense" as const,
+        type: "Expense",
         balance: 15000,
         debits: 15000,
         credits: 0,
@@ -149,7 +159,7 @@ const accountsData = {
       "5300": {
         code: "5300",
         name: "Salaries Expense",
-        type: "Expense" as const,
+        type: "Expense",
         balance: 30000,
         debits: 30000,
         credits: 0,
@@ -164,24 +174,24 @@ const accountTabs = [
   { label: "Liabilities", filter: "Liability" },
   { label: "Capital & equity", filter: "Equity" },
   { label: "Income", filter: "Revenue" },
-  { label: "Trade Expenses", filter: "Expense" }, // Optional: adjust mapping if 'Trade Expenses' should filter differently
+  { label: "Trade Expenses", filter: "Expense" },
   { label: "Expenses", filter: "Expense" },
 ];
 
-// Helper function to deeply filter accounts by type
-function filterAccountsByType(accounts, type) {
+function filterAccountsByType(
+  accounts: Record<string, AccountNode>,
+  type: AccountType | null
+): Record<string, AccountNode> {
   if (!type) return accounts;
-  const filtered = {};
+  const filtered: Record<string, AccountNode> = {};
   Object.entries(accounts).forEach(([key, value]) => {
-    // Recursively filter children
-    let children = value.children
-      ? filterAccountsByType(value.children, type)
-      : undefined;
-    // Include the account if its type matches or any of its children match
+    let children =
+      value.children &&
+      filterAccountsByType(value.children, type);
     if (value.type === type || (children && Object.keys(children).length > 0)) {
       filtered[key] = {
         ...value,
-        children,
+        children: children && Object.keys(children).length > 0 ? children : undefined,
       };
     }
   });
@@ -192,44 +202,48 @@ const ChartOfAccounts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("Assets");
 
-  // Determine current filter/type based on active tab
   const currentType =
     accountTabs.find((t) => t.label === activeTab)?.filter || null;
 
-  // Filtered accounts data for the selected tab/filter
   const filteredAccountsData = useMemo(() => {
-    return currentType ? filterAccountsByType(accountsData, currentType) : accountsData;
+    return currentType ? filterAccountsByType(accountsData, currentType as AccountType) : accountsData;
   }, [currentType]);
 
   return (
-    <div className="min-h-screen bg-[#F1F0FB]">
+    <div className="min-h-screen bg-[#F7F8FB]">
       <Header />
       <div className="flex">
         <aside className="w-56 border-r h-full min-h-screen bg-white">
           <Sidebar />
         </aside>
-        <main className="flex-1 p-0 sm:p-8">
-          {/* Page heading */}
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <h1 className="text-3xl font-bold text-[#1EAEDB] tracking-tight mb-2 sm:mb-0">Chart of Accounts</h1>
-            <Button className="bg-[#1EAEDB] hover:bg-[#0FA0CE] text-white font-semibold px-5 py-2 rounded-lg shadow-sm" size="sm">
+        <main className="flex-1 px-0 sm:px-9 py-8">
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#262B42] tracking-tight mb-3 sm:mb-0">Chart of Accounts</h1>
+            <Button
+              className="bg-[#275DF5] hover:bg-[#1740A8] text-white font-semibold px-6 py-2 rounded-lg shadow-none text-base"
+              size="sm"
+            >
               <Plus className="mr-2" size={18} />
               Add Account
             </Button>
           </div>
-          {/* Filter Tabs */}
-          <div className="mb-6">
-            <div className="flex gap-2 sm:gap-3 py-2 px-2 rounded-lg bg-white shadow border border-[#D8E7F7] w-fit">
+
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-0.5 border border-[#E6E9F0] rounded-lg bg-[#F7F8FB] px-1 py-[3px] w-fit shadow-none">
               {accountTabs.map((tab) => (
                 <button
                   key={tab.label}
-                  className={`px-5 py-2 min-w-[100px] rounded-lg text-[15px] font-semibold transition-all border
+                  className={`
+                    flex items-center px-5 py-2 min-w-[110px] rounded-md text-[15px] font-medium transition-all border
                     ${
                       activeTab === tab.label
-                        ? "bg-[#1EAEDB] text-white border-[#1EAEDB] shadow scale-105"
-                        : "bg-[#F7F9FB] text-[#1EAEDB] border-transparent hover:text-[#1585BC] hover:bg-[#ECF6FB]"
+                        ? "bg-[#275DF5] text-white border-[#275DF5] shadow"
+                        : "bg-white text-[#24243A] border-transparent hover:text-[#275DF5] hover:bg-[#EFF3FF] hover:border-[#C3DAFE]"
                     }
                   `}
+                  style={{
+                    fontWeight: activeTab === tab.label ? 600 : 500,
+                  }}
                   onClick={() => setActiveTab(tab.label)}
                   type="button"
                 >
@@ -238,28 +252,48 @@ const ChartOfAccounts = () => {
               ))}
             </div>
           </div>
-          {/* Actions Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center mb-3 gap-2 sm:gap-0">
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center mb-2 gap-2 sm:gap-0">
             <Input
               type="search"
-              placeholder="Search chart of accounts"
-              className="max-w-xs text-[15px] px-3 py-2 h-10 border border-[#C8C8C9] rounded-lg bg-white shadow-sm ring-0 focus:ring-2 focus:ring-[#1EAEDB]/20 focus:border-[#1EAEDB]"
+              placeholder="Search by ..."
+              className="max-w-xs text-[15px] px-3 py-2 h-10 border border-[#E6E9F0] rounded-lg bg-white shadow-none ring-0 focus:ring-2 focus:ring-[#275DF5]/15 focus:border-[#275DF5]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ marginRight: "1rem" }}
             />
-            <div className="flex flex-row gap-2 ml-auto">
-              <Button variant="outline" className="border-[#D8E7F7] bg-white text-[#1EAEDB] hover:bg-[#E8F6FC] px-4 py-2 rounded-lg font-semibold">
-                <Upload className="mr-2" size={18} />
-                Import
-              </Button>
-              <Button variant="outline" className="border-[#D8E7F7] bg-white text-[#1EAEDB] hover:bg-[#E8F6FC] px-4 py-2 rounded-lg font-semibold">
-                <Download className="mr-2" size={18} />
-                Export
-              </Button>
+
+            <div className="flex-1 flex overflow-x-auto gap-1 bg-[#242B43] rounded-t-md rounded-b-none shadow-none min-h-[42px]">
+              {[
+                { label: "Create" },
+                { label: "Update" },
+                { label: "Merge" },
+                { label: "Move" },
+                { label: "Print" },
+                { label: "Export" },
+                { label: "Import" },
+                { label: "Shortcuts" },
+              ].map((action) => (
+                <Button
+                  key={action.label}
+                  variant="ghost"
+                  size="sm"
+                  className="text-white font-medium px-6 py-2 rounded-none bg-transparent hover:bg-[#1E253B] focus:bg-[#1E253B]"
+                  style={{ borderRadius: 0, border: "none", boxShadow: "none" }}
+                  type="button"
+                  tabIndex={-1}
+                  disabled={action.label === "Update" || action.label === "Merge" || action.label === "Move" || action.label === "Shortcuts"}
+                >
+                  {action.label === "Create" && <Plus size={16} className="mr-1" />}
+                  {action.label === "Import" && <Upload size={16} className="mr-1" />}
+                  {action.label === "Export" && <Download size={16} className="mr-1" />}
+                  {action.label}
+                </Button>
+              ))}
             </div>
           </div>
-          {/* Card/Table */}
-          <div className="rounded-xl bg-white shadow-xl border border-[#D8E7F7] p-0 mt-2">
+
+          <div className="rounded-xl bg-white shadow-[0_2px_10px_rgba(44,56,130,0.05)] border border-[#E6E9F0] p-0 mt-2">
             <AccountsTable
               accountsData={filteredAccountsData}
               searchQuery={searchQuery}
@@ -273,4 +307,4 @@ const ChartOfAccounts = () => {
 
 export default ChartOfAccounts;
 
-// NOTE: This file is getting long (over 240 lines). Consider refactoring into smaller, focused components soon!
+// NOTE: This file is getting long (over 280 lines). Consider refactoring into smaller, focused components soon!
