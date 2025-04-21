@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { FolderIcon, Download, Search, Filter } from "lucide-react";
 import Header from "@/components/layout/Header";
@@ -12,7 +11,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -216,29 +215,27 @@ const getAccountTypeBadgeVariant = (type: AccountNode["type"]): "default" | "des
   }
 };
 
-const AccountItem = ({ 
-  account, 
-  searchQuery, 
-  showDetails 
-}: { 
-  account: AccountNode; 
+const AccountItem = ({
+  account,
+  searchQuery,
+  showDetails,
+}: {
+  account: AccountNode;
   searchQuery: string;
   showDetails: boolean;
 }) => {
   const hasChildren = account.children && Object.keys(account.children).length > 0;
 
-  // Hide accounts that don't match the search query (unless their children match)
   if (
-    searchQuery && 
-    !account.code.toLowerCase().includes(searchQuery.toLowerCase()) && 
+    searchQuery &&
+    !account.code.toLowerCase().includes(searchQuery.toLowerCase()) &&
     !account.name.toLowerCase().includes(searchQuery.toLowerCase())
   ) {
-    // Check if any children match the search query
     let childrenMatch = false;
     if (hasChildren) {
       childrenMatch = Object.values(account.children!).some(
-        child => 
-          child.code.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        (child) =>
+          child.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
           child.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
@@ -246,73 +243,71 @@ const AccountItem = ({
       return null;
     }
   }
-  
-  // Get aggregate totals (always show, even for collapsed parent)
-  const { debits, credits, balance } = hasChildren ? getAggregatedTotals(account) : {
-    debits: account.debits ?? 0,
-    credits: account.credits ?? 0,
-    balance: account.balance ?? 0,
-  };
 
-  // Determine icon color based on account level and children
-  const getFolderIconColor = () => {
-    // Root accounts (1000, 2000, etc)
-    if (account.code.length === 4 && account.code.endsWith('000')) {
-      return "text-[#8B5CF6]"; // Vivid Purple for root accounts
-    }
-    // Sub-accounts with children
-    if (hasChildren) {
-      return "text-[#F97316]"; // Bright Orange for parent sub-accounts
-    }
-    // Sub-accounts without children (leaf nodes)
-    return "text-[#0EA5E9]"; // Ocean Blue for leaf accounts
-  };
+  const { debits, credits, balance } = hasChildren
+    ? getAggregatedTotals(account)
+    : {
+        debits: account.debits ?? 0,
+        credits: account.credits ?? 0,
+        balance: account.balance ?? 0,
+      };
+
+  // Design: a subtle shadow, light glass effect, prominent row separator
+  // Remove the account type badge, just show code, name, balance, debits, credits
 
   return (
-    <AccordionItem value={account.code} className="border-none">
-      <AccordionTrigger 
-        className="hover:no-underline py-2 px-4"
-        showChevron={hasChildren}
-      >
-        <div className="flex items-center gap-4 w-full">
-          <span>
-            <svg className={`h-4 w-4 shrink-0 ${getFolderIconColor()}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path d="M3 7a2 2 0 0 1 2-2h2.34a2 2 0 0 0 1.34-.47l1.64-1.53a2 2 0 0 1 1.34-.47H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
-            </svg>
-          </span>
-          <div className={`grid ${showDetails ? 'grid-cols-6' : 'grid-cols-4'} w-full gap-4`}>
-            <span className="font-medium">{account.code}</span>
-            <span className="font-medium">{account.name}</span>
-            <span className="text-center">
-              <Badge variant={getAccountTypeBadgeVariant(account.type)}>
-                {account.type}
-              </Badge>
+    <>
+      <AccordionItem value={account.code} className="border-none bg-gradient-to-r from-[#f8fafc] to-[#e0e7ff] rounded-lg shadow-sm mb-2">
+        <AccordionTrigger className="hover:no-underline py-2 px-4 rounded-lg" showChevron={hasChildren}>
+          <div className="flex items-center gap-4 w-full">
+            <span>
+              <svg
+                className={`h-4 w-4 shrink-0 ${
+                  account.code.length === 4 && account.code.endsWith("000")
+                    ? "text-[#8B5CF6]"
+                    : hasChildren
+                    ? "text-[#F97316]"
+                    : "text-[#0EA5E9]"
+                }`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path d="M3 7a2 2 0 0 1 2-2h2.34a2 2 0 0 0 1.34-.47l1.64-1.53a2 2 0 0 1 1.34-.47H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
+              </svg>
             </span>
-            <span className="text-right">${balance.toLocaleString()}</span>
-            {showDetails && (
-              <>
-                <span className="text-right">${debits.toLocaleString()}</span>
-                <span className="text-right">${credits.toLocaleString()}</span>
-              </>
-            )}
+            <div className={`grid ${showDetails ? "grid-cols-5" : "grid-cols-3"} w-full gap-4 items-center`}>
+              <span className="font-bold tracking-wider text-gray-700 bg-white/40 px-2 py-1 rounded">{account.code}</span>
+              <span className="font-semibold text-gray-800">{account.name}</span>
+              <span className="text-right font-mono text-lg text-[#8B5CF6]">${balance.toLocaleString()}</span>
+              {showDetails && (
+                <>
+                  <span className="text-right font-mono text-green-600">${debits.toLocaleString()}</span>
+                  <span className="text-right font-mono text-red-500">${credits.toLocaleString()}</span>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </AccordionTrigger>
-      {hasChildren && (
-        <AccordionContent className="pl-8">
-          <Accordion type="multiple" className="w-full">
-            {Object.values(account.children).map((childAccount) => (
-              <AccountItem 
-                key={childAccount.code} 
-                account={childAccount} 
-                searchQuery={searchQuery}
-                showDetails={showDetails}
-              />
-            ))}
-          </Accordion>
-        </AccordionContent>
-      )}
-    </AccordionItem>
+        </AccordionTrigger>
+        {hasChildren && (
+          <AccordionContent className="pl-8">
+            <Accordion type="multiple" className="w-full">
+              {Object.values(account.children).map((childAccount) => (
+                <AccountItem
+                  key={childAccount.code}
+                  account={childAccount}
+                  searchQuery={searchQuery}
+                  showDetails={showDetails}
+                />
+              ))}
+            </Accordion>
+          </AccordionContent>
+        )}
+      </AccordionItem>
+      {/* Separator for y-axis clarity */}
+      <Separator className="my-2" />
+    </>
   );
 };
 
@@ -365,7 +360,7 @@ const ChartOfAccounts = () => {
   const expandAll = () => {
     const getAllAccountCodes = (accounts: Record<string, AccountNode>): string[] => {
       let codes: string[] = [];
-      Object.values(accounts).forEach(account => {
+      Object.values(accounts).forEach((account) => {
         codes.push(account.code);
         if (account.children) {
           codes = [...codes, ...getAllAccountCodes(account.children)];
@@ -373,7 +368,7 @@ const ChartOfAccounts = () => {
       });
       return codes;
     };
-    
+
     setExpandedAccounts(getAllAccountCodes(accountsData));
   };
 
@@ -382,18 +377,22 @@ const ChartOfAccounts = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-[#fdfcfb] to-[#e2d1c3]">
       <Header />
       <div className="flex">
-        <aside className="w-64 border-r bg-gray-50/40">
+        <aside className="w-64 border-r bg-gradient-to-b from-[#f8fafc] to-[#eef1f8]">
           <Sidebar />
         </aside>
-        <main className="flex-1 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold">Chart of Accounts</h1>
+        <main className="flex-1 p-8">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-4xl font-extrabold bg-gradient-to-r from-[#8B5CF6] to-[#F97316] bg-clip-text text-transparent drop-shadow">Chart of Accounts</h1>
             <div className="flex items-center gap-2">
-              <Button size="sm" onClick={expandAll}>Expand All</Button>
-              <Button size="sm" onClick={collapseAll}>Collapse All</Button>
+              <Button size="sm" className="font-bold" onClick={expandAll}>
+                Expand All
+              </Button>
+              <Button size="sm" className="font-bold" onClick={collapseAll}>
+                Collapse All
+              </Button>
               <Button size="sm" onClick={exportAccountsToCSV} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
                 Export
@@ -401,13 +400,13 @@ const ChartOfAccounts = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search accounts..."
-                className="pl-8"
+                className="pl-8 rounded-xl bg-white/80 shadow"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -443,28 +442,33 @@ const ChartOfAccounts = () => {
             </Popover>
           </div>
 
-          <Card className="mb-6">
+          <Card className="mb-6 bg-white/80 border-none shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FolderIcon className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-2xl font-bold text-[#221F26]">
+                <FolderIcon className="h-6 w-6 text-[#8B5CF6]" />
                 Account Hierarchy
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border">
-                <div className={`grid ${showDetails ? 'grid-cols-6' : 'grid-cols-4'} gap-4 py-2 px-4 border-b bg-muted/50`}>
-                  <span className="font-medium">Code</span>
-                  <span className="font-medium">Name</span>
-                  <span className="font-medium text-center">Type</span>
-                  <span className="text-right font-medium">Balance</span>
+              <div className="rounded-xl shadow-inner border border-[#e5e7eb] bg-gradient-to-tl from-[#f8fafc] to-[#e0e7ff]">
+                <div
+                  className={
+                    "grid " +
+                    (showDetails ? "grid-cols-5" : "grid-cols-3") +
+                    " gap-4 py-3 px-6 border-b border-[#e0e7ef] bg-white/70 rounded-t-xl"
+                  }
+                >
+                  <span className="font-semibold tracking-wider text-gray-800 text-lg">Code</span>
+                  <span className="font-semibold tracking-wider text-gray-800 text-lg">Name</span>
+                  <span className="text-right font-semibold tracking-wider text-gray-800 text-lg">Balance</span>
                   {showDetails && (
                     <>
-                      <span className="text-right font-medium">Debits</span>
-                      <span className="text-right font-medium">Credits</span>
+                      <span className="text-right font-semibold tracking-wider text-green-700 text-lg">Debits</span>
+                      <span className="text-right font-semibold tracking-wider text-red-700 text-lg">Credits</span>
                     </>
                   )}
                 </div>
-                <ScrollArea className="h-[500px]">
+                <ScrollArea className="h-[500px] px-2 py-2">
                   <Accordion
                     type="multiple"
                     className="w-full"
@@ -472,9 +476,9 @@ const ChartOfAccounts = () => {
                     onValueChange={setExpandedAccounts}
                   >
                     {Object.values(accountsData).map((account) => (
-                      <AccountItem 
-                        key={account.code} 
-                        account={account} 
+                      <AccountItem
+                        key={account.code}
+                        account={account}
                         searchQuery={searchQuery}
                         showDetails={showDetails}
                       />
@@ -485,7 +489,7 @@ const ChartOfAccounts = () => {
             </CardContent>
           </Card>
 
-          <div className="text-sm text-muted-foreground mt-4">
+          <div className="text-sm text-muted-foreground mt-6">
             <h3 className="font-semibold mb-2">Legend</h3>
             <div className="flex flex-wrap gap-x-6 gap-y-2">
               <div className="flex items-center">
