@@ -1,5 +1,6 @@
+
 import { useState, useMemo } from "react";
-import { Download, Plus, Upload, FileExport } from "lucide-react";
+import { Download, Plus, Upload, FileText } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
@@ -284,7 +285,7 @@ const ChartOfAccounts = () => {
                 { label: "Merge", icon: null },
                 { label: "Move", icon: null },
                 { label: "Print", icon: null },
-                { label: "Export", icon: FileExport, onClick: handleExport },
+                { label: "Export", icon: FileText, onClick: handleExport },
                 { label: "Import", icon: Upload },
                 { label: "Shortcuts", icon: null },
               ].map((action) => (
