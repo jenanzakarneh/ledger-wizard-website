@@ -1,11 +1,13 @@
 import { useState, useMemo } from "react";
-import { Download, Plus, Upload } from "lucide-react";
+import { Download, Plus, Upload, FileExport } from "lucide-react";
+import { toast } from "sonner";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import AccountsTable from "@/components/accounts/AccountsTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { exportAccountsToCSV } from "@/utils/exportAccounts";
 
 type AccountType = "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
 interface AccountNode {
@@ -211,6 +213,15 @@ const ChartOfAccounts = () => {
     return currentType ? filterAccountsByType(accountsData, currentType as AccountType) : accountsData;
   }, [currentType]);
 
+  const handleExport = () => {
+    try {
+      exportAccountsToCSV(filteredAccountsData);
+      toast.success("Chart of accounts exported successfully");
+    } catch (error) {
+      toast.error("Failed to export chart of accounts");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F7F8FB]">
       <Header />
@@ -256,7 +267,7 @@ const ChartOfAccounts = () => {
           </div>
 
           <div className="flex flex-col gap-2 mb-2">
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <div className="w-full">
               <Input
                 type="search"
                 placeholder="Search by ..."
@@ -268,14 +279,14 @@ const ChartOfAccounts = () => {
 
             <div className="flex overflow-x-auto gap-1 bg-[#242B43] rounded-t-md rounded-b-none shadow-none min-h-[42px]">
               {[
-                { label: "Create" },
-                { label: "Update" },
-                { label: "Merge" },
-                { label: "Move" },
-                { label: "Print" },
-                { label: "Export" },
-                { label: "Import" },
-                { label: "Shortcuts" },
+                { label: "Create", icon: Plus },
+                { label: "Update", icon: null },
+                { label: "Merge", icon: null },
+                { label: "Move", icon: null },
+                { label: "Print", icon: null },
+                { label: "Export", icon: FileExport, onClick: handleExport },
+                { label: "Import", icon: Upload },
+                { label: "Shortcuts", icon: null },
               ].map((action) => (
                 <Button
                   key={action.label}
@@ -285,11 +296,10 @@ const ChartOfAccounts = () => {
                   style={{ borderRadius: 0, border: "none", boxShadow: "none" }}
                   type="button"
                   tabIndex={-1}
+                  onClick={action.onClick}
                   disabled={action.label === "Update" || action.label === "Merge" || action.label === "Move" || action.label === "Shortcuts"}
                 >
-                  {action.label === "Create" && <Plus size={isMobile ? 14 : 16} className="mr-1" />}
-                  {action.label === "Import" && <Upload size={isMobile ? 14 : 16} className="mr-1" />}
-                  {action.label === "Export" && <Download size={isMobile ? 14 : 16} className="mr-1" />}
+                  {action.icon && <action.icon size={isMobile ? 14 : 16} className="mr-1" />}
                   <span className="text-[13px] sm:text-[14px]">{action.label}</span>
                 </Button>
               ))}
