@@ -5,6 +5,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import AccountsTable from "@/components/accounts/AccountsTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type AccountType = "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
 interface AccountNode {
@@ -201,6 +202,7 @@ function filterAccountsByType(
 const ChartOfAccounts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("Assets");
+  const isMobile = useIsMobile();
 
   const currentType =
     accountTabs.find((t) => t.label === activeTab)?.filter || null;
@@ -212,15 +214,15 @@ const ChartOfAccounts = () => {
   return (
     <div className="min-h-screen bg-[#F7F8FB]">
       <Header />
-      <div className="flex">
-        <aside className="w-56 border-r h-full min-h-screen bg-white">
+      <div className="flex flex-col lg:flex-row">
+        <aside className="w-full lg:w-56 border-r border-b lg:border-b-0 bg-white">
           <Sidebar />
         </aside>
-        <main className="flex-1 px-0 sm:px-9 py-8">
-          <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#262B42] tracking-tight mb-3 sm:mb-0">Chart of Accounts</h1>
+        <main className="flex-1 px-4 sm:px-6 lg:px-9 py-4 sm:py-6 lg:py-8">
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#262B42] tracking-tight">Chart of Accounts</h1>
             <Button
-              className="bg-[#275DF5] hover:bg-[#1740A8] text-white font-semibold px-6 py-2 rounded-lg shadow-none text-base"
+              className="w-full sm:w-auto bg-[#275DF5] hover:bg-[#1740A8] text-white font-semibold px-6 py-2 rounded-lg shadow-none text-base"
               size="sm"
             >
               <Plus className="mr-2" size={18} />
@@ -228,13 +230,13 @@ const ChartOfAccounts = () => {
             </Button>
           </div>
 
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-0.5 border border-[#E6E9F0] rounded-lg bg-[#F7F8FB] px-1 py-[3px] w-fit shadow-none">
+          <div className="mb-4 overflow-x-auto">
+            <div className="flex flex-wrap gap-0.5 border border-[#E6E9F0] rounded-lg bg-[#F7F8FB] px-1 py-[3px] w-fit shadow-none min-w-0">
               {accountTabs.map((tab) => (
                 <button
                   key={tab.label}
                   className={`
-                    flex items-center px-5 py-2 min-w-[110px] rounded-md text-[15px] font-medium transition-all border
+                    flex items-center px-3 sm:px-5 py-2 min-w-[90px] sm:min-w-[110px] rounded-md text-[14px] sm:text-[15px] font-medium transition-all border whitespace-nowrap
                     ${
                       activeTab === tab.label
                         ? "bg-[#275DF5] text-white border-[#275DF5] shadow"
@@ -254,13 +256,15 @@ const ChartOfAccounts = () => {
           </div>
 
           <div className="flex flex-col gap-2 mb-2">
-            <Input
-              type="search"
-              placeholder="Search by ..."
-              className="w-full max-w-xs text-[15px] px-3 py-2 h-10 border border-[#E6E9F0] rounded-lg bg-white shadow-none ring-0 focus:ring-2 focus:ring-[#275DF5]/15 focus:border-[#275DF5]"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <Input
+                type="search"
+                placeholder="Search by ..."
+                className="w-full sm:max-w-xs text-[15px] px-3 py-2 h-10 border border-[#E6E9F0] rounded-lg bg-white shadow-none ring-0 focus:ring-2 focus:ring-[#275DF5]/15 focus:border-[#275DF5]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
             <div className="flex overflow-x-auto gap-1 bg-[#242B43] rounded-t-md rounded-b-none shadow-none min-h-[42px]">
               {[
@@ -276,23 +280,23 @@ const ChartOfAccounts = () => {
                 <Button
                   key={action.label}
                   variant="ghost"
-                  size="sm"
-                  className="text-white font-medium px-6 py-2 rounded-none bg-transparent hover:bg-[#1E253B] focus:bg-[#1E253B]"
+                  size={isMobile ? "sm" : "default"}
+                  className="text-white font-medium px-4 sm:px-6 py-2 rounded-none bg-transparent hover:bg-[#1E253B] focus:bg-[#1E253B] whitespace-nowrap"
                   style={{ borderRadius: 0, border: "none", boxShadow: "none" }}
                   type="button"
                   tabIndex={-1}
                   disabled={action.label === "Update" || action.label === "Merge" || action.label === "Move" || action.label === "Shortcuts"}
                 >
-                  {action.label === "Create" && <Plus size={16} className="mr-1" />}
-                  {action.label === "Import" && <Upload size={16} className="mr-1" />}
-                  {action.label === "Export" && <Download size={16} className="mr-1" />}
-                  {action.label}
+                  {action.label === "Create" && <Plus size={isMobile ? 14 : 16} className="mr-1" />}
+                  {action.label === "Import" && <Upload size={isMobile ? 14 : 16} className="mr-1" />}
+                  {action.label === "Export" && <Download size={isMobile ? 14 : 16} className="mr-1" />}
+                  <span className="text-[13px] sm:text-[14px]">{action.label}</span>
                 </Button>
               ))}
             </div>
           </div>
 
-          <div className="rounded-xl bg-white shadow-[0_2px_10px_rgba(44,56,130,0.05)] border border-[#E6E9F0] p-0 mt-2">
+          <div className="rounded-xl bg-white shadow-[0_2px_10px_rgba(44,56,130,0.05)] border border-[#E6E9F0] p-0 mt-2 overflow-hidden">
             <AccountsTable
               accountsData={filteredAccountsData}
               searchQuery={searchQuery}
