@@ -253,17 +253,16 @@ const ChartOfAccounts = () => {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center mb-2 gap-2 sm:gap-0">
+          <div className="flex flex-col gap-2 mb-2">
             <Input
               type="search"
               placeholder="Search by ..."
-              className="max-w-xs text-[15px] px-3 py-2 h-10 border border-[#E6E9F0] rounded-lg bg-white shadow-none ring-0 focus:ring-2 focus:ring-[#275DF5]/15 focus:border-[#275DF5]"
+              className="w-full max-w-xs text-[15px] px-3 py-2 h-10 border border-[#E6E9F0] rounded-lg bg-white shadow-none ring-0 focus:ring-2 focus:ring-[#275DF5]/15 focus:border-[#275DF5]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ marginRight: "1rem" }}
             />
 
-            <div className="flex-1 flex overflow-x-auto gap-1 bg-[#242B43] rounded-t-md rounded-b-none shadow-none min-h-[42px]">
+            <div className="flex overflow-x-auto gap-1 bg-[#242B43] rounded-t-md rounded-b-none shadow-none min-h-[42px]">
               {[
                 { label: "Create" },
                 { label: "Update" },
@@ -306,5 +305,3 @@ const ChartOfAccounts = () => {
 };
 
 export default ChartOfAccounts;
-
-// NOTE: This file is getting long (over 280 lines). Consider refactoring into smaller, focused components soon!
