@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import Header from "@/components/layout/Header";
@@ -9,7 +8,7 @@ import AccountTabs from "@/components/accounts/AccountTabs";
 import AccountsToolbar from "@/components/accounts/AccountsToolbar";
 import AccountsSearchBar from "@/components/accounts/AccountsSearchBar";
 import { accountsData, accountTabs } from "@/data/accountsData";
-import { exportAccountsToCSV } from "@/utils/exportAccounts";
+import { exportAccounts, type ExportFormat } from "@/utils/exportAccounts";
 
 const AccountsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,12 +28,12 @@ const AccountsPage = () => {
     return filtered;
   }, [currentType]);
 
-  const handleExport = () => {
+  const handleExport = (format: ExportFormat) => {
     try {
-      exportAccountsToCSV(filteredAccountsData);
-      toast.success("Chart of accounts exported successfully");
+      exportAccounts(filteredAccountsData, format);
+      toast.success(`Chart of accounts exported successfully as ${format.toUpperCase()}`);
     } catch (error) {
-      toast.error("Failed to export chart of accounts");
+      toast.error(`Failed to export chart of accounts as ${format.toUpperCase()}`);
     }
   };
 
