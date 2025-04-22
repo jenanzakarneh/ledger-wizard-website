@@ -1,5 +1,5 @@
 
-import { FileText, FileExcel } from "lucide-react";
+import { FileText, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -48,7 +48,7 @@ const AccountsToolbar = ({ onExport }: AccountsToolbarProps) => {
             className="text-white font-medium px-4 sm:px-6 py-2 rounded-none bg-transparent hover:bg-[#1E253B] focus:bg-[#1E253B] whitespace-nowrap"
             style={{ borderRadius: 0, border: "none", boxShadow: "none" }}
           >
-            <FileText size={isMobile ? 14 : 16} className="mr-1" />
+            <FileDown size={isMobile ? 14 : 16} className="mr-1" />
             <span className="text-[13px] sm:text-[14px]">Export</span>
           </Button>
         </DropdownMenuTrigger>
@@ -58,7 +58,7 @@ const AccountsToolbar = ({ onExport }: AccountsToolbarProps) => {
             <span>Export as PDF</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onExport('excel')}>
-            <FileExcel className="mr-2 h-4 w-4" />
+            <FileDown className="mr-2 h-4 w-4" />
             <span>Export as Excel</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

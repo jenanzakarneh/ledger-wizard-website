@@ -4,9 +4,16 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-type AccountType = "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
+// Fix jsPDF with autoTable extension
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => jsPDF;
+  }
+}
 
-interface AccountNode {
+export type AccountType = "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
+
+export interface AccountNode {
   code: string;
   name: string;
   type: AccountType;
@@ -112,4 +119,3 @@ export const exportAccounts = (
       break;
   }
 };
-

@@ -9,7 +9,7 @@ import AccountsHeader from "@/components/accounts/AccountsHeader";
 import AccountTabs from "@/components/accounts/AccountTabs";
 import AccountsToolbar from "@/components/accounts/AccountsToolbar";
 import { accountsData, accountTabs, type AccountType } from "@/data/accountsData";
-import { exportAccountsToCSV } from "@/utils/exportAccounts";
+import { exportAccounts, type ExportFormat } from "@/utils/exportAccounts";
 
 const ChartOfAccounts = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,12 +29,12 @@ const ChartOfAccounts = () => {
     return filtered;
   }, [currentType]);
 
-  const handleExport = () => {
+  const handleExport = (format: ExportFormat) => {
     try {
-      exportAccountsToCSV(filteredAccountsData);
-      toast.success("Chart of accounts exported successfully");
+      exportAccounts(filteredAccountsData, format);
+      toast.success(`Chart of accounts exported successfully as ${format.toUpperCase()}`);
     } catch (error) {
-      toast.error("Failed to export chart of accounts");
+      toast.error(`Failed to export chart of accounts as ${format.toUpperCase()}`);
     }
   };
 
